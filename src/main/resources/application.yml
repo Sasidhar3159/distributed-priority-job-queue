@@ -13,7 +13,7 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 30s
   r2dbc:
-    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:jobs}
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:jobs}
     username: ${DB_USERNAME:jobs}
     password: ${DB_PASSWORD:jobs}
     pool:
@@ -22,11 +22,14 @@ spring:
       max-size: 32
       max-idle-time: 30m
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:jobs}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:jobs}
     username: ${DB_USERNAME:jobs}
     password: ${DB_PASSWORD:jobs}
   flyway:
     enabled: true
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:jobs}
+    user: ${DB_USERNAME:jobs}
+    password: ${DB_PASSWORD:jobs}
     locations: classpath:db/migration
     connect-retries: 20
   data:

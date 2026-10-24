@@ -1,11 +1,10 @@
 package com.github.diafter.jobqueue.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.UncheckedIOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Centralized JSON serialization helper.
@@ -25,8 +24,8 @@ public class JsonSupport {
     public String write(final Object value) {
         try {
             return objectMapper.writeValueAsString(value);
-        } catch (JsonProcessingException exception) {
-            throw new UncheckedIOException(exception);
+        } catch (JacksonException exception) {
+            throw new IllegalStateException("Failed to serialize JSON", exception);
         }
     }
 
@@ -41,8 +40,8 @@ public class JsonSupport {
     public <T> T read(final String json, final Class<T> type) {
         try {
             return objectMapper.readValue(json, type);
-        } catch (JsonProcessingException exception) {
-            throw new UncheckedIOException(exception);
+        } catch (JacksonException exception) {
+            throw new IllegalStateException("Failed to deserialize JSON", exception);
         }
     }
 

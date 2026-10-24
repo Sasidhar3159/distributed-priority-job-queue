@@ -69,7 +69,10 @@ public class JobStore {
     public Mono<JobRecord> findJobById(final UUID id) {
         return databaseClient.sql("SELECT * FROM jobs WHERE id = :id")
                 .bind("id", id)
-                .map((row, metadata) -> mapJob((name, type) -> row.get(name, type)))
+                .map((row, metadata) -> {
+                    RowGetter getter = new RowGetter(row);
+                    return mapJob(getter);
+                })
                 .one();
     }
 
@@ -82,7 +85,10 @@ public class JobStore {
     public Mono<JobRecord> findJobByIdempotencyKey(final String idempotencyKey) {
         return databaseClient.sql("SELECT * FROM jobs WHERE idempotency_key = :idempotencyKey")
                 .bind("idempotencyKey", idempotencyKey)
-                .map((row, metadata) -> mapJob((name, type) -> row.get(name, type)))
+                .map((row, metadata) -> {
+                    RowGetter getter = new RowGetter(row);;
+                    return mapJob(getter);
+                })
                 .one();
     }
 
@@ -142,7 +148,10 @@ public class JobStore {
                         """)
                 .bind("now", toOffset(now))
                 .bind("limit", limit)
-                .map((row, metadata) -> new OutboxRecord(
+                .map((row, metadata) -> {
+                    RowGetter getter = new RowGetter(row);
+                
+                    return new OutboxRecord(
                         row.get("id", UUID.class),
                         row.get("job_id", UUID.class),
                         row.get("topic", String.class),
@@ -150,8 +159,9 @@ public class JobStore {
                         row.get("payload_json", String.class),
                         row.get("headers_json", String.class),
                         row.get("attempts", Integer.class),
-                        instant((name, type) -> row.get(name, type), "not_before"),
-                        instant((name, type) -> row.get(name, type), "created_at")))
+                        instant(getter, "not_before"),
+                        instant(getter, "created_at"));            
+                })
                 .all();
     }
 
@@ -524,16 +534,15 @@ public class JobStore {
         return getter.get(name, type);
     }
 
-    @FunctionalInterface
-    private interface RowGetter {
-        /**
-         * Reads a typed column value from a database row.
-         *
-         * @param name column name.
-         * @param type target type.
-         * @param <T> target type parameter.
-         * @return column value.
-         */
-        <T> T get(String name, Class<T> type);
+    private static final class RowGetter {
+        private final io.r2dbc.spi.Row row;
+    
+        private RowGetter(final io.r2dbc.spi.Row row) {
+            this.row = row;
+        }
+    
+        private <T> T get(final String name, final Class<T> type) {
+            return row.get(name, type);
+        }
     }
 }

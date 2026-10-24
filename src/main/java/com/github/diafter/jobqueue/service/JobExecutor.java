@@ -1,6 +1,6 @@
 package com.github.diafter.jobqueue.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.github.diafter.jobqueue.domain.JobExecutionResult;
 import com.github.diafter.jobqueue.exception.NonRetryableJobException;
 import com.github.diafter.jobqueue.exception.RetryableJobException;

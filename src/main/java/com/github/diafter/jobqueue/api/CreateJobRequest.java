@@ -1,6 +1,6 @@
 package com.github.diafter.jobqueue.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.github.diafter.jobqueue.domain.JobPriority;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
